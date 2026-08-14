@@ -1,0 +1,41 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>dev.gaphunter.importcostcompanion</id>
+    <name>Import Cost Companion</name>
+    <vendor>Gap Hunter Labs</vendor>
+    <description><![CDATA[
+        <p>Run "Check Import Sizes" on a JS/TS file and get a real
+        report of every <code>node_modules</code> package it imports,
+        sorted by on-disk size, with unusually large ones flagged.</p>
+        <p>Born from real evidence in JetBrains Marketplace reviews of
+        the closest existing plugin in this space (135K downloads,
+        75% of reviews at 3 stars or fewer): a documented, years-long
+        pattern of severe CPU spikes and IDE freezes -- "drains 100%
+        CPU... battery lasts one hour", "freezes my IDE and I cannot
+        work" -- from recalculating package sizes continuously, inline,
+        on every keystroke.</p>
+        <p>This plugin's whole design exists to not do that: it runs
+        only when you ask it to, reads real on-disk package sizes
+        (never invokes a bundler), and never recomputes anything
+        automatically in the background. The direct fix for a
+        performance complaint is a design that structurally can't
+        reproduce it, not a faster version of the same always-on
+        computation.</p>
+        <p>100% local -- no network call, no account, no telemetry.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <actions>
+        <action id="ImportCostCompanion.CheckImportSizes"
+                class="dev.gaphunter.importcostcompanion.actions.CheckImportSizesAction"
+                text="Check Import Sizes"
+                description="Reports the on-disk size of every node_modules package this file imports, sorted largest first">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="Import Cost Companion" displayType="BALLOON"/>
+    </extensions>
+</idea-plugin>
