@@ -17,22 +17,10 @@ Node, nunca se resuelve desde ahí.
 ## Resultado esperado
 
 - `moment` con el tamaño más grande de los 3.
-- `lodash` (aparece 2 veces: `lodash` y `lodash/debounce`) -- ambas
-  líneas deberían mostrar el MISMO tamaño (el del paquete completo
-  `lodash`, ya que `lodash/debounce` resuelve al mismo paquete).
+- `lodash` en UNA sola línea, nombrando sus dos imports (`lodash` y
+  `lodash/debounce` son el mismo paquete, así que se cuenta una vez).
 - `@acme/ui-kit` con el tamaño más chico de los 3 (paquete con scope,
   confirma que la resolución de `@scope/pkg` funciona).
-- `fs` → **"not found locally"**, no un tamaño inventado ni un 0 --
-  este es el caso límite honesto a revisar con más atención.
-- `./local-styles.css` (import relativo) NO debería aparecer en el
-  reporte para nada -- se filtra antes, ni siquiera cuenta como
-  import de `node_modules`.
-- La notificación debería decir algo como "5 import(s) checked, 1 not
-  found locally".
-
-## Qué reportar
-
-- ¿Los tamaños relativos tienen sentido (moment > lodash > ui-kit)?
-- ¿`fs` se maneja de forma honesta (aviso de "not found"), no
-  silenciosamente mal?
-- ¿Correr la acción de nuevo sobrescribe el reporte limpio?
+- `fs` **no** aparece como "not found locally": es un módulo nativo de
+  Node, así que va en la línea aparte de built-ins al final del
+  reporte, sin tamaño.
