@@ -60,17 +60,18 @@ class CheckImportSizesAction : AnAction() {
                 val packageName = ImportExtractor.packageNameFor(path)
                 val packageDir = NodeModulesResolver.findPackageDir(file, packageName)
                 val size = packageDir?.let { DirectorySizeCalculator.totalSize(it) }
-                ImportSizeEntry(path, packageName, size)
+                ImportSizeEntry(path, packageName, size, builtin = packageDir == null && ImportExtractor.isNodeBuiltin(path))
             }
             val report = ImportSizeReportWriter.render(entries)
 
             ApplicationManager.getApplication().invokeLater {
                 writeReport(project, file, report)
-                val notFound = entries.count { it.sizeBytes == null }
+                val packages = ImportSizeReportWriter.packageCount(entries)
+                val notFound = entries.filter { it.sizeBytes == null && !it.builtin }.map { it.packageName }.distinct().size
                 val message = if (notFound > 0) {
-                    "${entries.size} import(s) checked, $notFound not found locally -- see import-cost-report.md."
+                    "$packages package(s) checked, $notFound not found locally -- see import-cost-report.md."
                 } else {
-                    "${entries.size} import(s) checked -- see import-cost-report.md."
+                    "$packages package(s) checked -- see import-cost-report.md."
                 }
                 notify(project, message, NotificationType.INFORMATION)
             }

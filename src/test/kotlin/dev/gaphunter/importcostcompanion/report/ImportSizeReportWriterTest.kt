@@ -39,4 +39,32 @@ class ImportSizeReportWriterTest : TestCase() {
         val report = ImportSizeReportWriter.render(emptyList())
         assertTrue(report.contains("No `node_modules` imports found"))
     }
+
+    // Regression (2026-10-01): the demo's own report listed `lodash` and
+    // `lodash/debounce` as two lines with the same size, and `fs` as
+    // "not found locally".
+    fun testSubpathImportsOfOnePackageAreOneLine() {
+        val report = ImportSizeReportWriter.render(
+            listOf(
+                ImportSizeEntry("lodash", "lodash", 12_000),
+                ImportSizeEntry("lodash/debounce", "lodash", 12_000),
+            ),
+        )
+        assertEquals(1, report.lines().count { it.startsWith("- ") })
+        assertTrue(report, report.contains("- `lodash` (imported as `lodash`, `lodash/debounce`): 12.0 KB"))
+        assertEquals(1, ImportSizeReportWriter.packageCount(listOf(ImportSizeEntry("lodash", "lodash", 1), ImportSizeEntry("lodash/fp", "lodash", 1))))
+    }
+
+    fun testNodeBuiltinsAreListedApartNotAsNotFound() {
+        val report = ImportSizeReportWriter.render(
+            listOf(
+                ImportSizeEntry("moment", "moment", 35_000),
+                ImportSizeEntry("fs", "fs", null, builtin = true),
+                ImportSizeEntry("node:path", "node:path", null, builtin = true),
+            ),
+        )
+        assertFalse(report, report.contains("not found locally"))
+        assertTrue(report, report.contains("Node.js built-in modules (no package to measure): `fs`, `node:path`"))
+        assertEquals(1, ImportSizeReportWriter.packageCount(listOf(ImportSizeEntry("fs", "fs", null, builtin = true), ImportSizeEntry("moment", "moment", 1))))
+    }
 }

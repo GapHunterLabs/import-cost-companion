@@ -52,4 +52,18 @@ class ImportExtractorTest : TestCase() {
     fun testPackageNameForADeepScopedImport() {
         assertEquals("@babel/core", ImportExtractor.packageNameFor("@babel/core/lib/something"))
     }
+
+    // Regression (2026-10-01): dynamic imports were not seen at all.
+    fun testDynamicImportIsExtracted() {
+        val text = "const chart = await import('chart.js');\nconst x = import(\"lodash/debounce\");\n"
+        assertEquals(listOf("chart.js", "lodash/debounce"), ImportExtractor.extractBareImportPaths(text))
+    }
+
+    fun testNodeBuiltinsAreRecognizedWithAndWithoutTheNodePrefix() {
+        assertTrue(ImportExtractor.isNodeBuiltin("fs"))
+        assertTrue(ImportExtractor.isNodeBuiltin("fs/promises"))
+        assertTrue(ImportExtractor.isNodeBuiltin("node:crypto"))
+        assertFalse(ImportExtractor.isNodeBuiltin("lodash"))
+        assertFalse(ImportExtractor.isNodeBuiltin("@acme/fs"))
+    }
 }

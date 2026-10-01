@@ -43,7 +43,14 @@ keystroke.
 ## Usage
 
 Right-click a JS/TS file → **Check Import Sizes**. Opens
-`import-cost-report.md` next to the file.
+`import-cost-report.md` next to the file: one line per package
+(`lodash` and `lodash/debounce` are the same package, listed once with
+both imports), static imports, `require()` and dynamic `import()`, and
+Node.js built-ins (`fs`, `node:path`) listed apart instead of as "not
+found" — unless a package of that name is installed, as browser
+polyfills like `buffer` or `events` are. (Before 0.1.1 each import was
+its own line, built-ins showed as "not found locally", and dynamic
+imports were missed.)
 
 ## Enterprise / Team Licensing
 

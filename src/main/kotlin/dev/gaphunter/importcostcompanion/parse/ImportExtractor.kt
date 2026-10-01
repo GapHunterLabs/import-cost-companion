@@ -13,7 +13,25 @@ package dev.gaphunter.importcostcompanion.parse
  */
 object ImportExtractor {
 
-    private val IMPORT_PATTERN = Regex("""(?:\bfrom\s+|\brequire\s*\(\s*|\bimport\s+)['"]([^'"]+)['"]""")
+    // `import('x')` (dynamic import) too: before 0.1.1 only static imports and require() were seen
+    private val IMPORT_PATTERN = Regex("""(?:\bfrom\s+|\brequire\s*\(\s*|\bimport\s*\(\s*|\bimport\s+)['"]([^'"]+)['"]""")
+
+    /** Node.js built-in modules (also reachable with the `node:` prefix, and as subpaths like `fs/promises`). */
+    private val NODE_BUILTINS = setOf(
+        "assert", "async_hooks", "buffer", "child_process", "cluster", "console", "constants", "crypto", "dgram",
+        "diagnostics_channel", "dns", "domain", "events", "fs", "http", "http2", "https", "inspector", "module", "net",
+        "os", "path", "perf_hooks", "process", "punycode", "querystring", "readline", "repl", "stream",
+        "string_decoder", "sys", "test", "timers", "tls", "trace_events", "tty", "url", "util", "v8", "vm", "wasi",
+        "worker_threads", "zlib",
+    )
+
+    /**
+     * True for a Node.js built-in module. A bare name like `buffer` or `events` is also a common npm polyfill for
+     * browser bundles, so the caller only treats it as built-in when no such package exists in `node_modules`; a
+     * `node:` import is always the built-in.
+     */
+    fun isNodeBuiltin(importPath: String): Boolean =
+        importPath.startsWith("node:") || packageNameFor(importPath) in NODE_BUILTINS
 
     /** Raw import path strings, in file order, deduplicated. Relative (`./x`) and absolute (`/x`) imports are already excluded here -- only bare specifiers (resolvable from `node_modules`) are returned. */
     fun extractBareImportPaths(text: String): List<String> =
