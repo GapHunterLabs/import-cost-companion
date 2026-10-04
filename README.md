@@ -4,6 +4,11 @@ IntelliJ-family plugin. Run **Check Import Sizes** on a JS/TS file and
 get a real report of every `node_modules` package it imports, sorted
 by on-disk size, with unusually large ones flagged.
 
+![Import Cost Companion: a real report of every node_modules package a file imports, by size](docs/media/hero.gif)
+
+Each feature on its own:
+[The report](docs/media/01-report.gif)
+
 ## Why it exists
 
 Born from real evidence in JetBrains Marketplace reviews of the
